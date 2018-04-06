@@ -15,9 +15,33 @@ namespace BillyMadison
 {
     public class Startup
     {
+        // modified to handle secrets
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder();
+
+            // https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio-code
+            builder.AddUserSecrets<Startup>();
+
+            Configuration = builder.Build();
+
+            foreach(var item in configuration.AsEnumerable())
+            {
+                Configuration[item.Key] = item.Value;
+            }
+        }
+
+        // source: https://github.com/aspnet/Docs/blob/master/aspnetcore/security/app-secrets/sample/UserSecrets/Startup.cs
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder();
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -25,8 +49,13 @@ namespace BillyMadison
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<BillyMadisonContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            var dbuser = Configuration["dbuser"];
+            var dbpass = Configuration["dbpass"];
+            var dbname = Configuration["dbname"];
+
+            var connection = $@"Server=localhost;Database={dbname};User Id={dbuser}; Password={dbpass}";
+
+            services.AddDbContext<BillyMadisonContext>(options => options.UseSqlServer(connection));
             services.AddMvc();
         }
 
