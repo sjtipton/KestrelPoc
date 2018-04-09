@@ -14,6 +14,8 @@ namespace BillyMadison.Controllers
     [Route("api/Students")]
     public class StudentsController : Controller
     {
+        // TODO ... extract into model methods to utilize in this controller, as well as EnrollmentsController
+
         private readonly BillyMadisonContext _context;
 
         public StudentsController(BillyMadisonContext context)

@@ -11,7 +11,7 @@ using BillyMadison.Models;
 namespace BillyMadison.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Enrollments")]
+    [Route("api/Students/{studentId:int}/Enrollments")]
     public class EnrollmentsController : Controller
     {
         private readonly BillyMadisonContext _context;
@@ -21,23 +21,26 @@ namespace BillyMadison.Controllers
             _context = context;
         }
 
-        // GET: api/Enrollments
+        // GET: api/Students/42/Enrollments
         [HttpGet]
-        public IEnumerable<Enrollment> GetEnrollments()
+        public IEnumerable<Enrollment> GetEnrollments([FromRoute] int studentId)
         {
+            // TODO ... validate studentId
             return _context.Enrollments;
         }
 
-        // GET: api/Enrollments/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetEnrollment([FromRoute] int id)
+        // GET: api/Students/42/Enrollments/5
+        [HttpGet]
+        [Route("{enrollmentId:int}")]
+        public async Task<IActionResult> GetEnrollment([FromRoute] int studentId, [FromRoute] int enrollmentId)
         {
+            // TODO ... validate studentId
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var enrollment = await _context.Enrollments.SingleOrDefaultAsync(m => m.Id == id);
+            var enrollment = await _context.Enrollments.SingleOrDefaultAsync(m => m.Id == enrollmentId);
 
             if (enrollment == null)
             {
@@ -47,16 +50,18 @@ namespace BillyMadison.Controllers
             return Ok(enrollment);
         }
 
-        // PUT: api/Enrollments/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEnrollment([FromRoute] int id, [FromBody] Enrollment enrollment)
+        // PUT: api/Students/42/Enrollments/5
+        [HttpPut]
+        [Route("{enrollmentId:int}")]
+        public async Task<IActionResult> PutEnrollment([FromRoute] int studentId, [FromRoute] int enrollmentId, [FromBody] Enrollment enrollment)
         {
+            // TODO ... validate studentId
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != enrollment.Id)
+            if (enrollmentId != enrollment.Id)
             {
                 return BadRequest();
             }
@@ -69,7 +74,7 @@ namespace BillyMadison.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EnrollmentExists(id))
+                if (!EnrollmentExists(enrollmentId))
                 {
                     return NotFound();
                 }
@@ -82,10 +87,11 @@ namespace BillyMadison.Controllers
             return NoContent();
         }
 
-        // POST: api/Enrollments
+        // POST: api/Students/42/Enrollments
         [HttpPost]
-        public async Task<IActionResult> PostEnrollment([FromBody] Enrollment enrollment)
+        public async Task<IActionResult> PostEnrollment([FromRoute] int studentId, [FromBody] Enrollment enrollment)
         {
+            // TODO ... validate studentId
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -97,16 +103,18 @@ namespace BillyMadison.Controllers
             return CreatedAtAction("GetEnrollment", new { id = enrollment.Id }, enrollment);
         }
 
-        // DELETE: api/Enrollments/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEnrollment([FromRoute] int id)
+        // DELETE: api/Students/42/Enrollments/5
+        [HttpDelete]
+        [Route("{enrollmentId:int}")]
+        public async Task<IActionResult> DeleteEnrollment([FromRoute] int studentId, [FromRoute] int enrollmentId)
         {
+            // TODO ... validate studentId
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var enrollment = await _context.Enrollments.SingleOrDefaultAsync(m => m.Id == id);
+            var enrollment = await _context.Enrollments.SingleOrDefaultAsync(m => m.Id == enrollmentId);
             if (enrollment == null)
             {
                 return NotFound();
