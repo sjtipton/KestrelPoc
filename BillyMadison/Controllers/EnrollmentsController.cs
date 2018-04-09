@@ -23,10 +23,16 @@ namespace BillyMadison.Controllers
 
         // GET: api/Students/42/Enrollments
         [HttpGet]
-        public IEnumerable<Enrollment> GetEnrollments([FromRoute] int studentId)
+        public async Task<IActionResult> GetEnrollments([FromRoute] int studentId)
         {
-            // TODO ... validate studentId
-            return _context.Enrollments;
+            if (!StudentExists(studentId))
+            {
+                return NotFound();
+            }
+
+            var enrollments = await _context.Enrollments.Where(e => e.StudentId == studentId).ToListAsync();
+
+            return Ok(enrollments);
         }
 
         // GET: api/Students/42/Enrollments/5
@@ -34,7 +40,11 @@ namespace BillyMadison.Controllers
         [Route("{enrollmentId:int}")]
         public async Task<IActionResult> GetEnrollment([FromRoute] int studentId, [FromRoute] int enrollmentId)
         {
-            // TODO ... validate studentId
+            if (!StudentExists(studentId))
+            {
+                return NotFound();
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -55,7 +65,11 @@ namespace BillyMadison.Controllers
         [Route("{enrollmentId:int}")]
         public async Task<IActionResult> PutEnrollment([FromRoute] int studentId, [FromRoute] int enrollmentId, [FromBody] Enrollment enrollment)
         {
-            // TODO ... validate studentId
+            if (!StudentExists(studentId))
+            {
+                return NotFound();
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -91,7 +105,13 @@ namespace BillyMadison.Controllers
         [HttpPost]
         public async Task<IActionResult> PostEnrollment([FromRoute] int studentId, [FromBody] Enrollment enrollment)
         {
-            // TODO ... validate studentId
+            if (!StudentExists(studentId))
+            {
+                return NotFound();
+            }
+
+            // TODO: Enrollment for this student and this course should not already exist (but, not currently passing in courseId)
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -108,7 +128,11 @@ namespace BillyMadison.Controllers
         [Route("{enrollmentId:int}")]
         public async Task<IActionResult> DeleteEnrollment([FromRoute] int studentId, [FromRoute] int enrollmentId)
         {
-            // TODO ... validate studentId
+            if (!StudentExists(studentId))
+            {
+                return NotFound();
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -129,6 +153,12 @@ namespace BillyMadison.Controllers
         private bool EnrollmentExists(int id)
         {
             return _context.Enrollments.Any(e => e.Id == id);
+        }
+
+        private bool StudentExists(int id)
+        {
+            var student = _context.Students.SingleOrDefault(s => s.Id == id);
+            return student != null;
         }
     }
 }
