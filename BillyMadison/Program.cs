@@ -1,6 +1,8 @@
 ﻿using System.IO;
+using BillyMadison.Data;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BillyMadison
 {
@@ -8,7 +10,16 @@ namespace BillyMadison
     {
         public static void Main(string[] args)
         {
-            BuildWebHostAsIISReverseProxy(args).Run();
+            var host = BuildWebHostAsIISReverseProxy(args);
+
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<BillyMadisonContext>();
+                DbInitializer.Initialize(context);
+            }
+
+            host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
